@@ -1,0 +1,79 @@
+[
+  {
+    "id": "SIG-261111-4211",
+    "fullName": "Julian Thorne",
+    "phone": "(555) 345-6789",
+    "customer_email": "julian.thorne@luxuryhomes.com",
+    "email": "julian.thorne@luxuryhomes.com",
+    "address": {
+      "street": "820 Park Ave",
+      "zip": "10021"
+    },
+    "services": [
+      "Air Duct Cleaning",
+      "HVAC Cleaning"
+    ],
+    "preferredDate": "2026-11-25",
+    "preferredTime": "09:30 AM",
+    "notes": "Penthouse access via service elevator",
+    "status": "PENDING",
+    "createdAt": "2026-11-11T15:59:38.543Z"
+  },
+  {
+    "id": "SIG-261111-4417",
+    "fullName": "Eleanor Vance",
+    "phone": "(555) 987-6543",
+    "address": {
+      "street": "1040 Fifth Avenue",
+      "zip": "10028"
+    },
+    "services": [
+      "Air Duct Cleaning"
+    ],
+    "preferredDate": "2026-11-20",
+    "preferredTime": "10:30 AM",
+    "notes": "Penthouse service",
+    "status": "PENDING",
+    "createdAt": "2026-11-11T15:40:51.767Z"
+  },
+  {
+    "id": "SIG-261109-9041",
+    "fullName": "Eleanor Vance",
+    "phone": "(555) 987-6543",
+    "address": {
+      "street": "12 Ocean Drive",
+      "city": "Beverly Hills",
+      "state": "CA",
+      "zip": "90210"
+    },
+    "services": [
+      "Air Duct Cleaning",
+      "Dryer Vent Cleaning"
+    ],
+    "preferredDate": "2026-11-20",
+    "preferredTime": "08:00 AM – 10:00 AM (Morning Air Flow)",
+    "notes": "High ceilings, custom linear slot vents.",
+    "status": "PENDING",
+    "createdAt": "2026-11-09T17:48:09.978Z"
+  },
+  {
+    "id": "SIG-DEMO-7842",
+    "fullName": "Arthur Sterling",
+    "phone": "(555) 234-5678",
+    "address": {
+      "street": "740 Park Avenue, Apt 14B",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10021"
+    },
+    "services": [
+      "Air Duct Cleaning",
+      "HVAC Cleaning"
+    ],
+    "preferredDate": "2026-11-12",
+    "preferredTime": "10:00 AM - 12:00 PM",
+    "notes": "Central HVAC high-rise residence. Please confirm arrival window in advance.",
+    "status": "PENDING",
+    "createdAt": "2026-11-09T17:47:43.507Z"
+  }
+]

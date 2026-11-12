@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --gold: #D6A447;
+    --gold-light: #F4E2B5;
+    --gold-dark: #996F1D;
+    --bg-dark: #050505;
+    --surface-dark: #0D0D11;
+    --surface-border: rgba(214, 164, 71, 0.18);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #050505;
+    color: #F3F4F6;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+/* Custom luxury scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D6A447;
+}
+
+/* Shimmer and luxury animations */
+@keyframes goldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #C7C7C7 0%,
+    #D6A447 25%,
+    #FFF 50%,
+    #D6A447 75%,
+    #C7C7C7 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldShimmer 8s linear infinite;
+}
+
+.gold-gradient-border {
+  border-image: linear-gradient(135deg, rgba(214, 164, 71, 0.45), rgba(214, 164, 71, 0.05), rgba(199, 199, 199, 0.2)) 1;
+}
+
+/* Glass panel */
+.luxury-glass {
+  background: rgba(13, 13, 17, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(214, 164, 71, 0.16);
+}
+
+.luxury-glass-subtle {
+  background: rgba(18, 18, 22, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}

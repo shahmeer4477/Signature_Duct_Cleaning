@@ -1,0 +1,10 @@
+# Robots.txt for Signature Duct Cleaning
+User-agent: *
+Allow: /
+
+# Prevent indexing of internal backend API endpoints
+Disallow: /api/
+Disallow: /__aistudio_internal_control_plane/
+
+# Sitemap location
+Sitemap: /sitemap.xml
