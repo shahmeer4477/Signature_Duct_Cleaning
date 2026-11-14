@@ -59,16 +59,19 @@ export const HeroSection: React.FC = () => {
       <div className="relative z-20 max-w-5xl mx-auto my-auto text-center flex flex-col items-center">
         {/* Official Company Logo in a Perfect Circular Frame */}
         <div className="mb-6 lg:mb-8 transition-transform duration-700 hover:scale-105">
-          <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-56 lg:h-56 rounded-full bg-[#020202] border border-[#D6A447]/70 shadow-[0_0_30px_rgba(214,164,71,0.22),0_0_60px_rgba(214,164,71,0.08)] p-3 sm:p-4 flex items-center justify-center overflow-hidden mx-auto group">
+          <div className="relative w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-56 lg:h-56 rounded-full bg-black border border-[#D6A447]/70 shadow-[0_0_30px_rgba(214,164,71,0.22),0_0_60px_rgba(214,164,71,0.08)] p-1 sm:p-1.5 flex items-center justify-center overflow-hidden mx-auto group isolate">
+            {/* Circular mask layer so mobile and desktop browsers cleanly clip square edges */}
+            <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center [clip-path:circle(50%_at_50%_50%)]">
+              <img
+                src="/signature-logo.jpeg"
+                alt="Signature Duct Cleaning — Air Duct, Dryer Vent &amp; HVAC Cleaning USA Logo"
+                className="w-full h-full rounded-full object-contain transition-transform duration-500 group-hover:scale-105"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
             {/* Thin inner gold hairline for refined luxury depth */}
-            <div className="absolute inset-[3px] rounded-full border border-[#D6A447]/25 pointer-events-none" />
-            <img
-              src="/signature-logo.jpeg"
-              alt="Signature Duct Cleaning — Air Duct, Dryer Vent &amp; HVAC Cleaning USA Logo"
-              className="w-full h-full object-contain filter drop-shadow-[0_4px_16px_rgba(214,164,71,0.2)] transition-transform duration-500 group-hover:scale-105"
-              loading="eager"
-              decoding="async"
-            />
+            <div className="absolute inset-[3px] z-10 rounded-full border border-[#D6A447]/25 pointer-events-none" />
           </div>
         </div>
 

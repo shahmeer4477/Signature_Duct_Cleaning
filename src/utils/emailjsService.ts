@@ -13,13 +13,13 @@ import emailjs from "@emailjs/browser";
  */
 export const EMAILJS_CONFIG = {
   SERVICE_ID:
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_SERVICE_ID) ||
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_SERVICE_ID?.trim()) ||
     "service_7hstt7l",
   TEMPLATE_ID:
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_TEMPLATE_ID) ||
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_TEMPLATE_ID?.trim()) ||
     "template_f6wqk8r",
   PUBLIC_KEY:
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_PUBLIC_KEY) ||
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_EMAILJS_PUBLIC_KEY?.trim()) ||
     "_HvbQ5I_dZNFjJq-9",
 };
 
@@ -50,8 +50,8 @@ export interface BookingEmailData {
  * - Preferred Time → "preferred time"
  * - Additional Notes → "additional notes"
  *
- * Also includes standard snake_case and camelCase aliases to guarantee matching
- * regardless of the exact tag syntax in the user's template.
+ * Also includes standard snake_case and camelCase aliases (including reply_to)
+ * to guarantee matching regardless of the exact tag syntax in the template.
  */
 export function buildContactTemplateParams(
   booking: BookingEmailData
@@ -65,10 +65,12 @@ export function buildContactTemplateParams(
     ? booking.notes.trim()
     : "None provided";
 
+  const customerEmail = booking.customer_email.trim();
+
   return {
     // 1. EXACT FIELD NAMES SPECIFIED BY USER
     "customer name": booking.fullName,
-    email: booking.customer_email,
+    email: customerEmail,
     "phone number": booking.phone,
     "street address": booking.street,
     "ZIP code": booking.zip,
@@ -77,15 +79,17 @@ export function buildContactTemplateParams(
     "preferred time": booking.preferredTime,
     "additional notes": notesText,
 
-    // 2. Snake_case and common aliases for comprehensive template compatibility
+    // 2. Snake_case, Reply-To, and common aliases for comprehensive template compatibility
     customer_name: booking.fullName,
     full_name: booking.fullName,
     name: booking.fullName,
 
-    customer_email: booking.customer_email,
-    to_email: booking.customer_email, // Used by attached auto-reply recipient
-    recipient_email: booking.customer_email,
-    reply_to: booking.customer_email,
+    customer_email: customerEmail,
+    to_email: customerEmail, // Used by attached auto-reply recipient
+    recipient_email: customerEmail,
+    reply_to: customerEmail,
+    replyTo: customerEmail,
+    user_email: customerEmail,
 
     phone_number: booking.phone,
     phone: booking.phone,
@@ -120,6 +124,35 @@ export function buildContactTemplateParams(
   };
 }
 
+function formatEmailJsError(err: unknown): string {
+  if (!err || typeof err !== "object") {
+    return "Unable to send your booking request right now. Please try again shortly.";
+  }
+
+  const record = err as { status?: number; text?: string; message?: string };
+  const rawMessage = record.text || record.message || "";
+
+  // Never expose raw HTML error pages or JSON parser noise to the user
+  if (
+    !rawMessage ||
+    rawMessage.trim().startsWith("<") ||
+    rawMessage.toLowerCase().includes("<!doctype") ||
+    rawMessage.toLowerCase().includes("unexpected token")
+  ) {
+    return "Unable to reach the booking email service right now. Please check your internet connection and try again.";
+  }
+
+  if (record.status === 400 || record.status === 401 || record.status === 403) {
+    return `Booking email service rejected the request (${rawMessage}). Please verify EmailJS service configuration.`;
+  }
+
+  if (record.status === 429) {
+    return "Too many booking requests were sent in a short time. Please wait a moment and try again.";
+  }
+
+  return rawMessage;
+}
+
 /**
  * Sends booking information using the configured EmailJS Service and Contact Template.
  *
@@ -131,32 +164,37 @@ export function buildContactTemplateParams(
 export async function sendBookingEmail(
   booking: BookingEmailData
 ): Promise<{ success: boolean; status: number; text: string }> {
-  // Initialize EmailJS with the Public Key
-  emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+  const { SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY } = EMAILJS_CONFIG;
+
+  if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+    throw new Error(
+      "Booking email service is not configured. Missing EmailJS credentials."
+    );
+  }
+
+  // Initialize EmailJS v5 with the Public Key
+  emailjs.init({ publicKey: PUBLIC_KEY });
 
   const templateParams = buildContactTemplateParams(booking);
 
-  console.log(
-    "[EmailJS] Executing single Contact Template dispatch (with attached auto-reply):",
-    {
-      serviceId: EMAILJS_CONFIG.SERVICE_ID,
-      templateId: EMAILJS_CONFIG.TEMPLATE_ID,
-      customer_email: booking.customer_email,
+  try {
+    const response = await emailjs.send(
+      SERVICE_ID,
+      TEMPLATE_ID,
       templateParams,
+      { publicKey: PUBLIC_KEY }
+    );
+
+    if (response.status < 200 || response.status >= 300) {
+      throw new Error(response.text || "EmailJS returned a non-success status.");
     }
-  );
 
-  const response = await emailjs.send(
-    EMAILJS_CONFIG.SERVICE_ID,
-    EMAILJS_CONFIG.TEMPLATE_ID,
-    templateParams,
-    EMAILJS_CONFIG.PUBLIC_KEY
-  );
-
-  console.log("[EmailJS] Email sent successfully:", response);
-  return {
-    success: true,
-    status: response.status,
-    text: response.text,
-  };
+    return {
+      success: true,
+      status: response.status,
+      text: response.text,
+    };
+  } catch (err) {
+    throw new Error(formatEmailJsError(err));
+  }
 }

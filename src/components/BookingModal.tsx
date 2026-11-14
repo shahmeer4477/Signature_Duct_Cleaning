@@ -19,8 +19,7 @@ import {
   Instagram,
   Mail,
 } from "lucide-react";
-import { useBookingModal } from "../context/BookingModalContext.tsx";
-import { BookingManagementModal } from "./BookingManagementModal.tsx";
+import { useBookingModal, SubmittedBookingInfo } from "../context/BookingModalContext.tsx";
 import { INSTAGRAM_URL } from "../constants/brand.ts";
 import { sendBookingEmail } from "../utils/emailjsService.ts";
 
@@ -84,25 +83,20 @@ export const BookingModal: React.FC = () => {
   // Status & Validation State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Minimum date is today
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // Track open timestamp & pointer origin to prevent ghost/drag clicks from immediately closing the modal
+  // Track open timestamp, pointer origin, and active submission lock
   const openedAtRef = useRef<number>(0);
   const pointerDownInsideDialogRef = useRef<boolean>(false);
+  const submittingRef = useRef<boolean>(false);
   const closeModalRef = useRef(closeBookingModal);
-  const isAdminOpenRef = useRef(isAdminOpen);
 
   useEffect(() => {
     closeModalRef.current = closeBookingModal;
   }, [closeBookingModal]);
-
-  useEffect(() => {
-    isAdminOpenRef.current = isAdminOpen;
-  }, [isAdminOpen]);
 
   // Independent Service toggle handler — toggles ONLY the specific service clicked
   const handleToggleService = (serviceId: string) => {
@@ -120,7 +114,7 @@ export const BookingModal: React.FC = () => {
     pointerDownInsideDialogRef.current = false;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isAdminOpenRef.current) {
+      if (e.key === "Escape") {
         closeModalRef.current();
       }
     };
@@ -218,6 +212,10 @@ export const BookingModal: React.FC = () => {
   // Submit Handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current || isSubmitting) {
+      return;
+    }
+
     setErrorMessage(null);
 
     if (!validateForm()) {
@@ -228,58 +226,109 @@ export const BookingModal: React.FC = () => {
       return;
     }
 
+    submittingRef.current = true;
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        fullName: fullName.trim(),
-        phone: phone.trim(),
-        customer_email: email.trim(),
-        email: email.trim(),
+      const trimmedName = fullName.trim();
+      const trimmedPhone = phone.trim();
+      const trimmedEmail = email.trim();
+      const trimmedStreet = street.trim();
+      const trimmedZip = zip.trim();
+      const trimmedTime = preferredTime.trim();
+      const trimmedNotes = notes.trim();
+      const selectedList = [...activeSelectedServices];
+
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const dateCode = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+      const fallbackBookingId = `SIG-${dateCode}-${randomSuffix}`;
+
+      let recordedBooking: SubmittedBookingInfo = {
+        id: fallbackBookingId,
+        fullName: trimmedName,
+        phone: trimmedPhone,
+        customer_email: trimmedEmail,
+        email: trimmedEmail,
         address: {
-          street: street.trim(),
-          zip: zip.trim(),
+          street: trimmedStreet,
+          zip: trimmedZip,
         },
-        services: activeSelectedServices,
+        services: selectedList,
         preferredDate,
-        preferredTime: preferredTime.trim(),
-        notes: notes.trim(),
+        preferredTime: trimmedTime,
+        notes: trimmedNotes,
+        status: "PENDING",
+        createdAt: new Date().toISOString(),
       };
 
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      // Dispatch booking inquiry + attached customer auto-reply via EmailJS
+      await sendBookingEmail({
+        bookingId: recordedBooking.id,
+        fullName: trimmedName,
+        phone: trimmedPhone,
+        customer_email: trimmedEmail,
+        street: trimmedStreet,
+        zip: trimmedZip,
+        services: selectedList,
+        preferredDate,
+        preferredTime: trimmedTime,
+        notes: trimmedNotes,
       });
 
-      const data = await res.json();
+      // Best-effort backend persistence when Express API is available; safely ignore HTML/404 on static hosts (e.g. Netlify)
+      try {
+        const res = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: trimmedName,
+            phone: trimmedPhone,
+            customer_email: trimmedEmail,
+            email: trimmedEmail,
+            address: {
+              street: trimmedStreet,
+              zip: trimmedZip,
+            },
+            services: selectedList,
+            preferredDate,
+            preferredTime: trimmedTime,
+            notes: trimmedNotes,
+          }),
+        });
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to submit appointment request.");
+        const contentType = res.headers.get("content-type") || "";
+        if (res.ok && contentType.includes("application/json")) {
+          const data = await res.json();
+          if (data?.booking) {
+            recordedBooking = data.booking;
+          }
+        }
+      } catch {
+        // Static hosting (Netlify) does not expose /api/bookings; EmailJS confirmation already succeeded
       }
 
-      // Dispatch via single EmailJS Contact Template (with attached Auto Reply to customer)
-      await sendBookingEmail({
-        bookingId: data.booking.id,
-        fullName: data.booking.fullName,
-        phone: data.booking.phone,
-        customer_email: data.booking.customer_email || email.trim(),
-        street: data.booking.address.street,
-        zip: data.booking.address.zip,
-        services: data.booking.services || activeSelectedServices,
-        preferredDate: data.booking.preferredDate,
-        preferredTime: data.booking.preferredTime,
-        notes: data.booking.notes,
-      });
-
-      // Only transition to success screen after successful submission
-      setSubmittedBooking(data.booking);
-    } catch (err: any) {
+      // Transition to confirmation screen ONLY after EmailJS confirms success
+      setSubmittedBooking(recordedBooking);
+    } catch (err: unknown) {
       console.error("Booking error:", err);
-      setErrorMessage(
-        err.text || err.message || "Failed to submit booking request. Please check your connection and try again."
-      );
+      const rawMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "text" in err
+            ? String((err as { text?: unknown }).text || "")
+            : "";
+
+      const cleanMessage =
+        !rawMessage ||
+        rawMessage.trim().startsWith("<") ||
+        rawMessage.toLowerCase().includes("<!doctype") ||
+        rawMessage.toLowerCase().includes("unexpected token")
+          ? "Unable to submit your booking request right now. Please try again in a moment."
+          : rawMessage;
+
+      setErrorMessage(cleanMessage);
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -891,24 +940,11 @@ export const BookingModal: React.FC = () => {
                   <Shield className="w-3 h-3 text-[#D6A447]" />
                   Direct Dispatch Encryption
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setIsAdminOpen(true)}
-                  className="hover:text-[#D6A447] transition-colors underline"
-                >
-                  Business Management Portal
-                </button>
               </div>
             </div>
           </form>
         )}
       </div>
-
-      {/* Admin Business Management Portal Modal */}
-      <BookingManagementModal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-      />
     </div>,
     document.body
   );
