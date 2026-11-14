@@ -1,3 +1,9 @@
+import serviceAirDuctImg from "../assets/images/service_air_duct_clean_branded_1794326494355.jpg";
+import serviceDryerVentImg from "../assets/images/service_dryer_vent_clean_branded_1794326513518.jpg";
+import serviceChimneyImg from "../assets/images/service_chimney_clean_branded_1794326539045.jpg";
+import serviceHvacImg from "../assets/images/service_hvac_system_clean_branded_1794326559603.jpg";
+import serviceAtticImg from "../assets/images/service_attic_insulation_branded_1794326579650.jpg";
+
 export const INSTAGRAM_URL = "https://www.instagram.com/signature_ductcleaning?dlrf=NnhxY3Z1dGZlNnp2";
 export const INSTAGRAM_HANDLE = "@signature_ductcleaning";
 
@@ -24,7 +30,7 @@ export const SERVICES: ServiceItem[] = [
     title: "AIR DUCT CLEANING",
     shortDesc: "Complete mechanical decontamination of supply, return, and branch ductwork to restore pure airflow.",
     fullDesc: "Our high-precision source-removal duct decontamination utilizes negative air pressure displacement combined with pneumatic rotary agitation. We extract accumulated micro-allergens, airborne particulates, drywall dust, and biological debris across every linear foot of your ventilation conduits.",
-    image: "/src/assets/images/service_air_duct_clean_branded_1794326494355.jpg",
+    image: serviceAirDuctImg,
     imageAlt: "Professional Air Duct Cleaning — Source-removal negative air pressure displacement and ductwork sanitization in residential and commercial properties across the United States",
     highlights: [
       "Negative-air source containment extraction",
@@ -45,7 +51,7 @@ export const SERVICES: ServiceItem[] = [
     title: "DRYER VENT CLEANING",
     shortDesc: "Total lint and thermal obstruction removal to optimize appliance efficiency and mitigate fire hazards.",
     fullDesc: "Dryer exhaust ducts accumulate high-density combustible lint fibers and condensed moisture. Our specialized deep-bore line clearing clears the entire exhaust run from the dryer transition collar through the exterior wall or roof damper.",
-    image: "/src/assets/images/service_dryer_vent_clean_branded_1794326513518.jpg",
+    image: serviceDryerVentImg,
     imageAlt: "Professional Dryer Vent Cleaning — Lint extraction, thermal obstruction removal, and fire hazard prevention for residential laundry exhausts",
     highlights: [
       "Full-length line blockage & lint evacuation",
@@ -66,7 +72,7 @@ export const SERVICES: ServiceItem[] = [
     title: "CHIMNEY CLEANING",
     shortDesc: "Surgical creosote, soot, and draft blockage clearing for safe, efficient hearth ventilation.",
     fullDesc: "Fireplace flues accumulate flammable glaze, creosote deposits, and combustible soot over seasons of burning. Our chimney sweeping service utilizes heavy-gauge poly-flue brushes and sealed negative-pressure HEPA vacuums to protect your living room.",
-    image: "/src/assets/images/service_chimney_clean_branded_1794326539045.jpg",
+    image: serviceChimneyImg,
     imageAlt: "Professional Chimney Cleaning Services — Creosote, soot, and draft blockage sweeping with dust-sealed room containment",
     highlights: [
       "Stage 1, 2, and 3 creosote assessment and sweeping",
@@ -87,7 +93,7 @@ export const SERVICES: ServiceItem[] = [
     title: "HVAC SYSTEM CLEANING",
     shortDesc: "Comprehensive deep-cleaning of evaporator coils, blower fan assemblies, and central air handlers.",
     fullDesc: "Dust, mold spores, and bio-film build up on damp evaporator coils and blower squirrel-cage fans, restricting thermal heat transfer and forcing compressors to overwork. We chemically foam-clean coils and balance the blower unit.",
-    image: "/src/assets/images/service_hvac_system_clean_branded_1794326559603.jpg",
+    image: serviceHvacImg,
     imageAlt: "Professional HVAC Cleaning Services — Evaporator coil antimicrobial cleaning, blower fan motor detailing, and central air handler care",
     highlights: [
       "Evaporator coil antimicrobial foam treatment",
@@ -108,7 +114,7 @@ export const SERVICES: ServiceItem[] = [
     title: "ATTIC INSULATION",
     shortDesc: "Architectural thermal barrier optimization, damaged insulation extraction, and fresh blown thermal fill.",
     fullDesc: "A compromised attic insulation layer causes rapid thermal loss in winter and radiant heat soak in summer, driving HVAC utility costs up while allowing dust and pests into ceiling voids. We extract contaminated material and lay fresh high-R-value coverage.",
-    image: "/src/assets/images/service_attic_insulation_branded_1794326579650.jpg",
+    image: serviceAtticImg,
     imageAlt: "Professional Attic Insulation Services — Thermal barrier extraction, structural ceiling air sealing, and premium blown insulation installation",
     highlights: [
       "Removal of degraded or pest-compromised insulation",

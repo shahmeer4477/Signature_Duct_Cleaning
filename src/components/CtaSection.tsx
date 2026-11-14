@@ -2,6 +2,7 @@ import React from "react";
 import { INSTAGRAM_URL, INSTAGRAM_HANDLE } from "../constants/brand.ts";
 import { Instagram, ArrowUpRight, Sparkles } from "lucide-react";
 import { useBookingModal } from "../context/BookingModalContext.tsx";
+import heroLuxuryPenthouse from "../assets/images/hero_luxury_penthouse_1794245179401.jpg";
 
 export const CtaSection: React.FC = () => {
   const { openBookingModal } = useBookingModal();
@@ -11,7 +12,7 @@ export const CtaSection: React.FC = () => {
       {/* Background Architectural Glow & Image Vignette */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/src/assets/images/hero_luxury_penthouse_1794245179401.jpg"
+          src={heroLuxuryPenthouse}
           alt="Healthier indoor living environment through professional air duct and HVAC cleaning across the USA — Signature Duct Cleaning"
           loading="lazy"
           decoding="async"

@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { INSTAGRAM_URL } from "../constants/brand.ts";
 import { ArrowRight, Instagram, Wind, Activity, CheckCircle } from "lucide-react";
+import chapterOneDirtyDuctImg from "../assets/images/dirty_air_duct_interior_1794327696269.jpg";
+import chapterTwoNegativeAirImg from "../assets/images/negative_air_clean_setup_1794327964895.jpg";
+import chapterThreeCrystallineAirImg from "../assets/images/crystalline_air_architecture_1794327939594.jpg";
 
 interface ShowcaseChapter {
   id: string;
@@ -22,7 +25,7 @@ const CHAPTERS: ShowcaseChapter[] = [
     title: "WHAT LIES INSIDE UNSEEN CONDUITS",
     description:
       "Modern forced-air systems circulate up to seven times their internal volume daily. Over months and years, fine silica drywall dust, pet dander, microscopic mold spores, and heavy particulate settle along the internal perimeter walls, creating an invisible reservoir of contamination.",
-    image: "/src/assets/images/dirty_air_duct_interior_1794327696269.jpg",
+    image: chapterOneDirtyDuctImg,
     imageAlt: "Inspection of contaminated residential air duct interior with dust buildup before professional air duct cleaning",
     details: [
       { label: "Circulation Rate", val: "Continuous 24/7 Recirculation" },
@@ -38,7 +41,7 @@ const CHAPTERS: ShowcaseChapter[] = [
     title: "THE POWER OF NEGATIVE AIR DISPLACEMENT",
     description:
       "Unlike surface-level dusting or chemical masking, the Signature methodology employs surgical negative pressure source extraction. Powerful negative airflow units seal the duct system while flexible pneumatic whips sweep every internal corner, evacuating particulate directly into sealed multi-stage HEPA containment.",
-    image: "/src/assets/images/negative_air_clean_setup_1794327964895.jpg",
+    image: chapterTwoNegativeAirImg,
     imageAlt: "Professional negative air displacement duct cleaning equipment and HEPA extraction setup",
     details: [
       { label: "Extraction Physics", val: "Negative Air Agitation Dynamics" },
@@ -54,7 +57,7 @@ const CHAPTERS: ShowcaseChapter[] = [
     title: "CRYSTALLINE INDOOR AIR ARCHITECTURE",
     description:
       "With supply lines, return plenums, and mechanical blower coils stripped of restrictive grime, your residence breathes as intended. Balanced static pressure reduces motor strain, decreases utility consumption, and fills every living room and bedroom with crisp, restorative air.",
-    image: "/src/assets/images/crystalline_air_architecture_1794327939594.jpg",
+    image: chapterThreeCrystallineAirImg,
     imageAlt: "Immaculate residential indoor air quality and purified airflow following Signature duct cleaning",
     details: [
       { label: "Air Crispness", val: "Noticeably Lighter & Cleaner Sensation" },

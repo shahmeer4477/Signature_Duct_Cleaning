@@ -3,6 +3,7 @@ import { GoldParticlesCanvas } from "./GoldParticlesCanvas.tsx";
 import { INSTAGRAM_URL } from "../constants/brand.ts";
 import { Instagram, ArrowDown, Sparkles } from "lucide-react";
 import { useBookingModal } from "../context/BookingModalContext.tsx";
+import heroLuxuryPenthouse from "../assets/images/hero_luxury_penthouse_1794245179401.jpg";
 
 export const HeroSection: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -30,7 +31,7 @@ export const HeroSection: React.FC = () => {
         }}
       >
         <img
-          src="/src/assets/images/hero_luxury_penthouse_1794245179401.jpg"
+          src={heroLuxuryPenthouse}
           alt="Signature Duct Cleaning — Professional air duct, dryer vent, and HVAC cleaning for residential and commercial properties in the USA"
           loading="eager"
           decoding="async"
