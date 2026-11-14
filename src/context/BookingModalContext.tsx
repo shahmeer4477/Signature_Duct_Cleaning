@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from "react";
 
 export interface SubmittedBookingInfo {
   id: string;
@@ -99,7 +99,7 @@ export const BookingModalProvider: React.FC<{ children: ReactNode }> = ({
       }
     });
 
-  const setSubmittedBooking = (booking: SubmittedBookingInfo | null) => {
+  const setSubmittedBooking = useCallback((booking: SubmittedBookingInfo | null) => {
     setSubmittedBookingState(booking);
     try {
       if (booking) {
@@ -110,19 +110,20 @@ export const BookingModalProvider: React.FC<{ children: ReactNode }> = ({
     } catch {
       // Safe fallback if storage unavailable
     }
-  };
+  }, []);
 
-  const clearSubmittedBooking = () => {
+  const clearSubmittedBooking = useCallback(() => {
     setSubmittedBooking(null);
-  };
+  }, [setSubmittedBooking]);
 
   // Derive genuinely active selected services list
-  const activeSelectedServices = CANONICAL_SERVICES.filter(
-    (id) => Boolean(selectedServices[id])
+  const activeSelectedServices = useMemo(
+    () => CANONICAL_SERVICES.filter((id) => Boolean(selectedServices[id])),
+    [selectedServices]
   );
 
   // Select a single service exclusively and optionally open/focus the booking popup
-  const selectSingleService = (serviceIdentifier: string, openModal = true) => {
+  const selectSingleService = useCallback((serviceIdentifier: string, openModal = true) => {
     const canonical = normalizeServiceKey(serviceIdentifier);
     if (canonical) {
       setSelectedServices({
@@ -136,50 +137,65 @@ export const BookingModalProvider: React.FC<{ children: ReactNode }> = ({
     if (openModal) {
       setIsOpen(true);
     }
-  };
+  }, []);
 
   // Independent service checkbox toggle
-  const toggleService = (serviceKey: string) => {
+  const toggleService = useCallback((serviceKey: string) => {
     setSelectedServices((prev) => ({
       ...prev,
       [serviceKey]: !prev[serviceKey],
     }));
-  };
+  }, []);
 
   // Reset to default selection (Air Duct Cleaning checked)
-  const resetServiceSelections = () => {
+  const resetServiceSelections = useCallback(() => {
     setSelectedServices({ ...DEFAULT_SERVICE_SELECTION });
-  };
+  }, []);
 
-  const openBookingModal = (serviceId?: string) => {
+  const openBookingModal = useCallback((serviceId?: string) => {
     if (serviceId) {
       selectSingleService(serviceId, true);
     } else {
       setIsOpen(true);
     }
-  };
+  }, [selectSingleService]);
 
-  const closeBookingModal = () => {
+  const closeBookingModal = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      isOpen,
+      openBookingModal,
+      closeBookingModal,
+      selectedServices,
+      setSelectedServices,
+      selectSingleService,
+      toggleService,
+      resetServiceSelections,
+      activeSelectedServices,
+      submittedBooking,
+      setSubmittedBooking,
+      clearSubmittedBooking,
+    }),
+    [
+      isOpen,
+      openBookingModal,
+      closeBookingModal,
+      selectedServices,
+      selectSingleService,
+      toggleService,
+      resetServiceSelections,
+      activeSelectedServices,
+      submittedBooking,
+      setSubmittedBooking,
+      clearSubmittedBooking,
+    ]
+  );
 
   return (
-    <BookingModalContext.Provider
-      value={{
-        isOpen,
-        openBookingModal,
-        closeBookingModal,
-        selectedServices,
-        setSelectedServices,
-        selectSingleService,
-        toggleService,
-        resetServiceSelections,
-        activeSelectedServices,
-        submittedBooking,
-        setSubmittedBooking,
-        clearSubmittedBooking,
-      }}
-    >
+    <BookingModalContext.Provider value={value}>
       {children}
     </BookingModalContext.Provider>
   );

@@ -45,9 +45,10 @@ export const ServicesSection: React.FC = () => {
               return (
                 <div
                   key={service.id}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     setActiveTab(index);
-                    selectSingleService(service.title, true);
                   }}
                   onMouseEnter={() => {
                     setActiveTab(index);
@@ -129,7 +130,12 @@ export const ServicesSection: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setSelectedService(activeService)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSelectedService(activeService);
+                }}
                 className="flex items-center gap-2 text-xs font-medium tracking-[0.18em] uppercase text-white bg-black/60 hover:bg-[#D6A447] hover:text-[#050505] backdrop-blur-md px-3.5 py-1.5 border border-white/10 hover:border-[#D6A447] transition-all duration-300 rounded-xs"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
@@ -161,7 +167,12 @@ export const ServicesSection: React.FC = () => {
               {/* Action Buttons: Booking is Primary */}
               <div className="flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => selectSingleService(activeService.title, true)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    selectSingleService(activeService.title, true);
+                  }}
                   className="px-6 py-3 text-xs font-bold tracking-[0.18em] uppercase text-[#050505] bg-gradient-to-r from-[#D6A447] via-[#F4E2B5] to-[#D6A447] hover:from-[#E2BA59] hover:via-[#FFF] hover:to-[#E2BA59] rounded-sm transition-all duration-300 shadow-[0_0_20px_rgba(214,164,71,0.4)] flex items-center gap-2 group active:scale-[0.98] cursor-pointer"
                 >
                   <span>Book This Service</span>
@@ -169,7 +180,12 @@ export const ServicesSection: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setSelectedService(activeService)}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedService(activeService);
+                  }}
                   className="px-5 py-3 text-xs font-semibold tracking-[0.18em] uppercase text-white bg-[#14141A] hover:bg-[#1E1E26] border border-[#D6A447]/50 hover:border-[#D6A447] rounded-sm transition-all duration-300 flex items-center gap-2"
                 >
                   <span>Explore Details</span>
@@ -205,7 +221,12 @@ export const ServicesSection: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  onClick={() => selectSingleService(item.title, true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveTab(idx);
+                    setSelectedService(item);
+                  }}
                   className={`group relative bg-[#09090D] border border-white/5 hover:border-[#D6A447]/40 rounded-sm overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-[0_15px_35px_rgba(214,164,71,0.12)] flex flex-col justify-between ${
                     isLarge ? "lg:col-span-2" : "lg:col-span-1"
                   }`}

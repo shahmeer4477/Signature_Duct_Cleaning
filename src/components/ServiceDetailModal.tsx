@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { ServiceItem } from "../constants/brand.ts";
 import { INSTAGRAM_URL } from "../constants/brand.ts";
 import { X, Instagram, CheckCircle2, Shield, ArrowUpRight } from "lucide-react";
@@ -11,21 +12,32 @@ interface ServiceDetailModalProps {
 
 export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({ service, onClose }) => {
   const { openBookingModal } = useBookingModal();
-  if (!service) return null;
+  if (!service || typeof document === "undefined") return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-12">
+  return createPortal(
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-6 lg:p-12">
       {/* Backdrop */}
       <div
-        onClick={onClose}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
         className="absolute inset-0 bg-[#050505]/85 backdrop-blur-xl transition-opacity animate-fade-in"
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0A0A0E] border border-[#D6A447]/30 rounded-sm shadow-[0_25px_60px_rgba(0,0,0,0.95)] p-6 sm:p-8 lg:p-10 text-white">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0A0A0E] border border-[#D6A447]/30 rounded-sm shadow-[0_25px_60px_rgba(0,0,0,0.95)] p-6 sm:p-8 lg:p-10 text-white"
+      >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
           className="absolute top-6 right-6 p-2 text-[#C7C7C7] hover:text-[#D6A447] hover:bg-white/5 rounded-full transition-colors"
           aria-label="Close details"
         >
@@ -122,7 +134,10 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({ service,
 
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <button
-              onClick={() => {
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 onClose();
                 openBookingModal(service.title);
               }}
@@ -144,6 +159,7 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({ service,
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

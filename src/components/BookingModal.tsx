@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Calendar,
@@ -89,6 +90,20 @@ export const BookingModal: React.FC = () => {
   // Minimum date is today
   const todayStr = new Date().toISOString().split("T")[0];
 
+  // Track open timestamp & pointer origin to prevent ghost/drag clicks from immediately closing the modal
+  const openedAtRef = useRef<number>(0);
+  const pointerDownInsideDialogRef = useRef<boolean>(false);
+  const closeModalRef = useRef(closeBookingModal);
+  const isAdminOpenRef = useRef(isAdminOpen);
+
+  useEffect(() => {
+    closeModalRef.current = closeBookingModal;
+  }, [closeBookingModal]);
+
+  useEffect(() => {
+    isAdminOpenRef.current = isAdminOpen;
+  }, [isAdminOpen]);
+
   // Independent Service toggle handler — toggles ONLY the specific service clicked
   const handleToggleService = (serviceId: string) => {
     toggleService(serviceId);
@@ -97,26 +112,45 @@ export const BookingModal: React.FC = () => {
     }
   };
 
-  // Handle ESC key and lock body background scroll
+  // Handle ESC key and lock background scroll cleanly while modal is open
   useEffect(() => {
+    if (!isOpen) return;
+
+    openedAtRef.current = performance.now();
+    pointerDownInsideDialogRef.current = false;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isAdminOpen) {
-        closeBookingModal();
+      if (e.key === "Escape" && !isAdminOpenRef.current) {
+        closeModalRef.current();
       }
     };
 
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    }
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
     };
-  }, [isOpen, isAdminOpen, closeBookingModal]);
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (e.target !== e.currentTarget) return;
+    if (pointerDownInsideDialogRef.current) {
+      pointerDownInsideDialogRef.current = false;
+      return;
+    }
+    // Guard against immediate/ghost clicks triggered in the same interaction that opened the modal
+    if (performance.now() - openedAtRef.current < 200) return;
+    closeBookingModal();
+  };
 
   // Phone input formatting
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,22 +300,30 @@ export const BookingModal: React.FC = () => {
     setErrorMessage(null);
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="booking-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:p-10 select-auto animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 lg:p-10 select-auto animate-fade-in"
     >
-      {/* Backdrop with blur & smooth click-outside close */}
+      {/* Backdrop with blur & guarded click-outside close */}
       <div
-        onClick={closeBookingModal}
+        onPointerDown={(e) => {
+          if (e.target === e.currentTarget) {
+            pointerDownInsideDialogRef.current = false;
+          }
+        }}
+        onClick={handleBackdropClick}
         className="absolute inset-0 bg-[#050505]/85 backdrop-blur-md transition-opacity"
       />
 
       {/* Luxury Cinematic Modal Container */}
       <div
         id="booking-modal-scroll"
+        onPointerDown={() => {
+          pointerDownInsideDialogRef.current = true;
+        }}
         onClick={(e) => e.stopPropagation()}
         className="relative z-10 w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-[#0D0D12] via-[#09090C] to-[#07070A] border border-[#D6A447]/35 rounded-xl shadow-[0_25px_80px_rgba(0,0,0,0.95)] text-white p-6 sm:p-10 lg:p-12 transition-all duration-300"
       >
@@ -290,6 +332,7 @@ export const BookingModal: React.FC = () => {
 
         {/* Close (X) Button */}
         <button
+          type="button"
           onClick={closeBookingModal}
           className="absolute top-5 right-5 sm:top-6 sm:right-6 p-2 text-[#C7C7C7] hover:text-[#D6A447] hover:bg-white/5 rounded-full transition-colors z-20"
           aria-label="Close booking modal"
@@ -416,6 +459,7 @@ export const BookingModal: React.FC = () => {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
+                type="button"
                 onClick={handleReset}
                 className="w-full sm:w-auto px-5 py-3 text-xs font-semibold tracking-[0.16em] uppercase text-white bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#D6A447]/50 rounded-sm transition-colors flex items-center justify-center gap-2"
               >
@@ -424,6 +468,7 @@ export const BookingModal: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={closeBookingModal}
                 className="w-full sm:w-auto px-6 py-3 text-xs font-bold tracking-[0.16em] uppercase text-[#050505] bg-gradient-to-r from-[#D6A447] to-[#F4E2B5] hover:brightness-110 rounded-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(214,164,71,0.3)]"
               >
@@ -672,6 +717,7 @@ export const BookingModal: React.FC = () => {
                         id={`service-checkbox-${s.id.toLowerCase().replace(/\s+/g, "-")}`}
                         name={`service-${s.id}`}
                         checked={isSelected}
+                        onClick={(e) => e.stopPropagation()}
                         onChange={() => handleToggleService(s.id)}
                         className="sr-only"
                         aria-label={`Select ${s.title}`}
@@ -863,6 +909,7 @@ export const BookingModal: React.FC = () => {
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
       />
-    </div>
+    </div>,
+    document.body
   );
 };
